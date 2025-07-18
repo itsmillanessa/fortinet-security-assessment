@@ -649,6 +649,13 @@
     <script>
         console.log('🚀 Fortinet Assessment - Script iniciado');
 
+        // ⭐ HACER FUNCIONES GLOBALES EXPLÍCITAMENTE ⭐
+        window.showDemo = null;
+        window.startAssessment = null;
+        window.continueToAssessment = null;
+        window.resetAssessment = null;
+        window.generateResults = null;
+
         // Data structures
         const industries = {
             financial: { name: 'Servicios Financieros', icon: '🏦', frameworks: ['SOX', 'PCI-DSS', 'NIST', 'ISO27001'] },
@@ -732,8 +739,8 @@
             else if (step === 4) show('step4');
         }
 
-        // Navigation functions
-        function showDemo() {
+        // Navigation functions - ASIGNAR A WINDOW EXPLÍCITAMENTE
+        window.showDemo = function showDemo() {
             console.log('🎬 Ejecutando showDemo()');
             // Load demo data
             assessmentData = {
@@ -749,28 +756,28 @@
                 categoryFilter: 'Todas'
             };
             generateResults();
-        }
+        };
 
-        function startAssessment() {
+        window.startAssessment = function startAssessment() {
             console.log('📊 Ejecutando startAssessment()');
             renderIndustries();
             goToStep(1);
-        }
+        };
 
-        function continueToAssessment() {
+        window.continueToAssessment = function continueToAssessment() {
             if (!assessmentData.industry) return;
             console.log('➡️ Continuando assessment para:', assessmentData.industry);
             renderTechnologies();
             goToStep(2);
-        }
+        };
 
-        function resetAssessment() {
+        window.resetAssessment = function resetAssessment() {
             console.log('🔄 Reseteando assessment');
             assessmentData = { industry: '', frameworks: [], techs: {}, categoryFilter: 'Todas' };
             results = null;
             currentStep = 0;
             goToStep(0);
-        }
+        };
 
         // Industry selection
         function renderIndustries() {
@@ -905,8 +912,8 @@
             renderTechGrid();
         }
 
-        // Results generation
-        function generateResults() {
+        // Results generation - TAMBIÉN GLOBAL
+        window.generateResults = function generateResults() {
             console.log('🎯 Generando resultados');
             const implemented = Object.entries(assessmentData.techs)
                 .filter(([_, selected]) => selected)
@@ -931,7 +938,7 @@
             console.log('📊 Resultados generados:', results);
             renderResults();
             goToStep(4);
-        }
+        };
 
         function calculateMaturityLevel() {
             const implemented = Object.entries(assessmentData.techs).filter(([_, selected]) => selected).map(([name, _]) => technologies[name]);
@@ -1616,8 +1623,8 @@
             console.log('✅ Roadmap elegante completado con éxito');
         }
 
-        // Función para exportar roadmap
-        function exportRoadmap() {
+        // Función para exportar roadmap - TAMBIÉN GLOBAL
+        window.exportRoadmap = function exportRoadmap() {
             const canvas = document.getElementById('roadmap-canvas');
             if (!canvas) {
                 alert('❌ Error: No se encontró el roadmap para exportar');
@@ -1639,9 +1646,9 @@
                 console.error('Error exportando roadmap:', error);
                 alert('❌ Error al exportar roadmap. Por favor intenta de nuevo.');
             }
-        }
+        };
 
-        function shareResults() {
+        window.shareResults = function shareResults() {
             const url = window.location.href;
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(url).then(() => {
@@ -1652,18 +1659,26 @@
             } else {
                 alert('🔗 URL para compartir: ' + url);
             }
-        }
+        };
 
-        // Event listeners usando modern approach - VERSIÓN SIMPLIFICADA
+        // Event listeners usando modern approach - VERSIÓN SIMPLIFICADA + FALLBACK
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📍 DOM Content Loaded - Configurando event listeners');
+            
+            // VERIFICAR QUE LAS FUNCIONES EXISTEN
+            console.log('🧪 Verificando funciones:');
+            console.log('window.showDemo existe:', typeof window.showDemo === 'function');
+            console.log('window.startAssessment existe:', typeof window.startAssessment === 'function');
             
             // Función helper para agregar listeners de forma segura
             function addListener(id, handler, eventType = 'click') {
                 const element = document.getElementById(id);
                 if (element) {
+                    // MÉTODO 1: Event Listener
                     element.addEventListener(eventType, handler);
-                    console.log(`✅ ${id} configurado`);
+                    // MÉTODO 2: Fallback onclick
+                    element.onclick = handler;
+                    console.log(`✅ ${id} configurado (ambos métodos)`);
                     return true;
                 } else {
                     console.error(`❌ ${id} no encontrado`);
@@ -1672,19 +1687,23 @@
             }
             
             // Agregar todos los listeners
-            addListener('demo-btn', showDemo);
-            addListener('start-btn', startAssessment);
-            addListener('continue-btn', continueToAssessment);
+            addListener('demo-btn', window.showDemo);
+            addListener('start-btn', window.startAssessment);
+            addListener('continue-btn', window.continueToAssessment);
             addListener('back-btn', () => goToStep(1));
-            addListener('generate-btn', generateResults);
-            addListener('reset-btn', resetAssessment);
+            addListener('generate-btn', window.generateResults);
+            addListener('reset-btn', window.resetAssessment);
             
-            // Test inmediato de funciones
-            console.log('🧪 Testing funciones:');
-            console.log('showDemo existe:', typeof showDemo === 'function');
-            console.log('startAssessment existe:', typeof startAssessment === 'function');
+            console.log('🎉 Aplicación lista - Event listeners configurados');
             
-            console.log('🎉 Aplicación lista - Todos los event listeners configurados');
+            // TEST INMEDIATO
+            setTimeout(() => {
+                console.log('🔬 Test post-carga:');
+                const testBtn = document.getElementById('demo-btn');
+                console.log('demo-btn encontrado:', !!testBtn);
+                console.log('demo-btn tiene onclick:', !!testBtn?.onclick);
+                console.log('window.showDemo disponible:', typeof window.showDemo === 'function');
+            }, 100);
         });
 
         // Global error handler
