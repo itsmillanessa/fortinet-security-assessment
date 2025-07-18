@@ -513,10 +513,7 @@
         <!-- Homepage -->
         <div id="homepage" class="card">
             <div style="text-align: center; margin: 30px 0;">
-                <button class="btn btn-primary" id="demo-btn">
-                    🚀 Ver Demo Interactivo
-                </button>
-                <button class="btn btn-secondary" id="start-btn">
+                <button class="btn btn-primary" id="start-btn">
                     📊 Iniciar Assessment
                 </button>
             </div>
@@ -630,10 +627,13 @@
                 <button class="btn btn-gray" id="reset-btn">
                     🔄 Nuevo Assessment
                 </button>
-                <button class="btn btn-primary" onclick="exportRoadmap()">
+                <button class="btn btn-primary" id="export-btn">
                     🖼️ Descargar Roadmap
                 </button>
-                <button class="btn btn-secondary" onclick="shareResults()">
+                <button class="btn btn-secondary" id="report-btn">
+                    📄 Generar Reporte
+                </button>
+                <button class="btn btn-primary" id="share-btn">
                     🔗 Compartir Resultado
                 </button>
             </div>
@@ -648,13 +648,6 @@
 
     <script>
         console.log('🚀 Fortinet Assessment - Script iniciado');
-
-        // ⭐ HACER FUNCIONES GLOBALES EXPLÍCITAMENTE ⭐
-        window.showDemo = null;
-        window.startAssessment = null;
-        window.continueToAssessment = null;
-        window.resetAssessment = null;
-        window.generateResults = null;
 
         // Data structures
         const industries = {
@@ -739,45 +732,27 @@
             else if (step === 4) show('step4');
         }
 
-        // Navigation functions - ASIGNAR A WINDOW EXPLÍCITAMENTE
-        window.showDemo = function showDemo() {
-            console.log('🎬 Ejecutando showDemo()');
-            // Load demo data
-            assessmentData = {
-                industry: 'financial',
-                frameworks: ['SOX', 'PCI-DSS', 'NIST', 'ISO27001'],
-                techs: {
-                    'FortiGate 30G': true,
-                    'FortiAuthenticator': true,
-                    'FortiMail': true,
-                    'FortiClient EMS': true,
-                    'FortiAnalyzer': true
-                },
-                categoryFilter: 'Todas'
-            };
-            generateResults();
-        };
-
-        window.startAssessment = function startAssessment() {
+        // Navigation functions - SIMPLES Y DIRECTAS
+        function startAssessment() {
             console.log('📊 Ejecutando startAssessment()');
             renderIndustries();
             goToStep(1);
-        };
+        }
 
-        window.continueToAssessment = function continueToAssessment() {
+        function continueToAssessment() {
             if (!assessmentData.industry) return;
             console.log('➡️ Continuando assessment para:', assessmentData.industry);
             renderTechnologies();
             goToStep(2);
-        };
+        }
 
-        window.resetAssessment = function resetAssessment() {
+        function resetAssessment() {
             console.log('🔄 Reseteando assessment');
             assessmentData = { industry: '', frameworks: [], techs: {}, categoryFilter: 'Todas' };
             results = null;
             currentStep = 0;
             goToStep(0);
-        };
+        }
 
         // Industry selection
         function renderIndustries() {
@@ -912,8 +887,8 @@
             renderTechGrid();
         }
 
-        // Results generation - TAMBIÉN GLOBAL
-        window.generateResults = function generateResults() {
+        // Results generation
+        function generateResults() {
             console.log('🎯 Generando resultados');
             const implemented = Object.entries(assessmentData.techs)
                 .filter(([_, selected]) => selected)
@@ -938,7 +913,7 @@
             console.log('📊 Resultados generados:', results);
             renderResults();
             goToStep(4);
-        };
+        }
 
         function calculateMaturityLevel() {
             const implemented = Object.entries(assessmentData.techs).filter(([_, selected]) => selected).map(([name, _]) => technologies[name]);
@@ -1623,8 +1598,8 @@
             console.log('✅ Roadmap elegante completado con éxito');
         }
 
-        // Función para exportar roadmap - TAMBIÉN GLOBAL
-        window.exportRoadmap = function exportRoadmap() {
+        // Función para exportar roadmap
+        function exportRoadmap() {
             const canvas = document.getElementById('roadmap-canvas');
             if (!canvas) {
                 alert('❌ Error: No se encontró el roadmap para exportar');
@@ -1646,9 +1621,84 @@
                 console.error('Error exportando roadmap:', error);
                 alert('❌ Error al exportar roadmap. Por favor intenta de nuevo.');
             }
-        };
+        }
 
-        window.shareResults = function shareResults() {
+        // Función para generar reporte completo
+        function generateReport() {
+            if (!results) {
+                alert('❌ Error: No hay datos para exportar');
+                return;
+            }
+
+            try {
+                const reportText = `
+FORTINET SECURITY ROADMAP REPORT
+================================
+
+INFORMACIÓN GENERAL
+------------------
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+Industria: ${industries[assessmentData.industry]?.name || 'Assessment'}
+Nivel de Madurez: ${results.overallMaturity}/5.0
+Fase Actual: ${maturityPhases[results.currentPhase]?.name || 'Básico'}
+Frameworks: ${assessmentData.frameworks.join(', ')}
+
+MÉTRICAS CLAVE
+--------------
+Tecnologías Implementadas: ${results.implemented.length}/${Object.keys(technologies).length}
+Completitud: ${Math.round((results.implemented.length / Object.keys(technologies).length) * 100)}%
+Reducción de Riesgo: ${Math.round(results.riskReduction)}%
+
+TECNOLOGÍAS IMPLEMENTADAS
+------------------------
+${results.implemented.map(t => `• ${t.icon} ${t.name} - ${t.desc}`).join('\n')}
+
+PRÓXIMOS PASOS RECOMENDADOS (Prioridad)
+---------------------------------------
+${results.missing.slice(0, 10).map((t, i) => `${i+1}. ${t.icon} ${t.name} - ${t.desc} (Impacto: +${t.score})`).join('\n')}
+
+ROADMAP DE IMPLEMENTACIÓN
+------------------------
+Fase 1 - Básico (Nivel 1.0-2.5):
+${Object.entries(technologies).filter(([_, t]) => t.phase === 'phase1').map(([name, t]) => `• ${t.icon} ${name}`).join('\n')}
+
+Fase 2 - Intermedio (Nivel 2.5-3.5):
+${Object.entries(technologies).filter(([_, t]) => t.phase === 'phase2').map(([name, t]) => `• ${t.icon} ${name}`).join('\n')}
+
+Fase 3 - Avanzado (Nivel 3.5-4.5):
+${Object.entries(technologies).filter(([_, t]) => t.phase === 'phase3').map(([name, t]) => `• ${t.icon} ${name}`).join('\n')}
+
+Fase 4 - Excelencia (Nivel 4.5-5.0):
+${Object.entries(technologies).filter(([_, t]) => t.phase === 'phase4').map(([name, t]) => `• ${t.icon} ${name}`).join('\n')}
+
+CONTACTO
+--------
+Para implementar estas recomendaciones, contacte a su representante Fortinet.
+Generado por: Fortinet Security Fabric Assessment Tool
+                `;
+                
+                // Crear blob y descargar
+                const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const tempLink = document.createElement('a');
+                tempLink.href = url;
+                tempLink.download = `Fortinet-Report-${assessmentData.industry || 'assessment'}-${new Date().toISOString().split('T')[0]}.txt`;
+                
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                document.body.removeChild(tempLink);
+                
+                // Limpiar URL
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+                
+                alert('📄 ¡Reporte generado exitosamente!\n\n• Incluye: Resumen ejecutivo, métricas y roadmap completo\n• Archivo: ' + tempLink.download);
+            } catch (error) {
+                console.error('Error generando reporte:', error);
+                alert('❌ Error al generar reporte. Por favor intenta de nuevo.');
+            }
+        }
+
+        function shareResults() {
             const url = window.location.href;
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(url).then(() => {
@@ -1659,51 +1709,76 @@
             } else {
                 alert('🔗 URL para compartir: ' + url);
             }
-        };
+        }
 
-        // Event listeners usando modern approach - VERSIÓN SIMPLIFICADA + FALLBACK
+        // INICIALIZACIÓN SIMPLE Y DIRECTA
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('📍 DOM Content Loaded - Configurando event listeners');
+            console.log('📍 DOM Content Loaded');
             
-            // VERIFICAR QUE LAS FUNCIONES EXISTEN
-            console.log('🧪 Verificando funciones:');
-            console.log('window.showDemo existe:', typeof window.showDemo === 'function');
-            console.log('window.startAssessment existe:', typeof window.startAssessment === 'function');
-            
-            // Función helper para agregar listeners de forma segura
-            function addListener(id, handler, eventType = 'click') {
-                const element = document.getElementById(id);
-                if (element) {
-                    // MÉTODO 1: Event Listener
-                    element.addEventListener(eventType, handler);
-                    // MÉTODO 2: Fallback onclick
-                    element.onclick = handler;
-                    console.log(`✅ ${id} configurado (ambos métodos)`);
-                    return true;
-                } else {
-                    console.error(`❌ ${id} no encontrado`);
-                    return false;
-                }
-            }
-            
-            // Agregar todos los listeners
-            addListener('demo-btn', window.showDemo);
-            addListener('start-btn', window.startAssessment);
-            addListener('continue-btn', window.continueToAssessment);
-            addListener('back-btn', () => goToStep(1));
-            addListener('generate-btn', window.generateResults);
-            addListener('reset-btn', window.resetAssessment);
-            
-            console.log('🎉 Aplicación lista - Event listeners configurados');
-            
-            // TEST INMEDIATO
+            // Esperar un poco para que los elementos estén listos
             setTimeout(() => {
-                console.log('🔬 Test post-carga:');
-                const testBtn = document.getElementById('demo-btn');
-                console.log('demo-btn encontrado:', !!testBtn);
-                console.log('demo-btn tiene onclick:', !!testBtn?.onclick);
-                console.log('window.showDemo disponible:', typeof window.showDemo === 'function');
-            }, 100);
+                console.log('🔧 Configurando botones...');
+                
+                // Obtener elementos
+                const startBtn = document.getElementById('start-btn');
+                const continueBtn = document.getElementById('continue-btn');
+                const backBtn = document.getElementById('back-btn');
+                const generateBtn = document.getElementById('generate-btn');
+                const resetBtn = document.getElementById('reset-btn');
+                const exportBtn = document.getElementById('export-btn');
+                const reportBtn = document.getElementById('report-btn');
+                const shareBtn = document.getElementById('share-btn');
+                
+                // Configurar eventos
+                if (startBtn) {
+                    startBtn.onclick = startAssessment;
+                    console.log('✅ Start button configurado');
+                } else {
+                    console.error('❌ Start button NO encontrado');
+                }
+                
+                if (continueBtn) {
+                    continueBtn.onclick = continueToAssessment;
+                    console.log('✅ Continue button configurado');
+                }
+                
+                if (backBtn) {
+                    backBtn.onclick = () => goToStep(1);
+                    console.log('✅ Back button configurado');
+                }
+                
+                if (generateBtn) {
+                    generateBtn.onclick = generateResults;
+                    console.log('✅ Generate button configurado');
+                }
+                
+                if (resetBtn) {
+                    resetBtn.onclick = resetAssessment;
+                    console.log('✅ Reset button configurado');
+                }
+                
+                if (exportBtn) {
+                    exportBtn.onclick = exportRoadmap;
+                    console.log('✅ Export button configurado');
+                }
+                
+                if (reportBtn) {
+                    reportBtn.onclick = generateReport;
+                    console.log('✅ Report button configurado');
+                }
+                
+                if (shareBtn) {
+                    shareBtn.onclick = shareResults;
+                    console.log('✅ Share button configurado');
+                }
+                
+                console.log('🎉 Todos los botones configurados');
+                
+                // Test del botón principal
+                if (startBtn) {
+                    console.log('🧪 Botón start listo para funcionar');
+                }
+            }, 500); // Esperar 500ms para que todo esté listo
         });
 
         // Global error handler
