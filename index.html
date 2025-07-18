@@ -1,0 +1,522 @@
+// index.html - Archivo principal para Vercel
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortinet Security Fabric - Cybersecurity Assessment</title>
+    <meta name="description" content="Evaluate su postura de seguridad actual y descubra el roadmap personalizado para alcanzar la excelencia en ciberseguridad con Fortinet">
+    <meta name="keywords" content="fortinet, cybersecurity, security assessment, firewall, compliance, roadmap">
+    
+    <!-- Open Graph para compartir en redes sociales -->
+    <meta property="og:title" content="Fortinet Security Assessment">
+    <meta property="og:description" content="Cybersecurity Maturity Assessment - Fortinet Security Fabric">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tu-app.vercel.app">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 24px;
+            color: #E31E24;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading">
+            🛡️ Cargando Fortinet Security Assessment...
+        </div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const FortinetSecurityAssessment = () => {
+          const [step, setStep] = useState(1);
+          const [data, setData] = useState({
+            industry: '',
+            frameworks: [],
+            techs: {},
+            categoryFilter: 'Todas'
+          });
+          const [results, setResults] = useState(null);
+          const [showComparison, setShowComparison] = useState(false);
+          const roadmapCanvasRef = useRef(null);
+
+          const industries = {
+            financial: { name: 'Servicios Financieros', icon: '🏦', frameworks: ['SOX', 'PCI-DSS', 'NIST', 'ISO27001'] },
+            government: { name: 'Gobierno', icon: '🏛️', frameworks: ['NIST', 'FedRAMP', 'FISMA', 'CIS'] },
+            healthcare: { name: 'Salud', icon: '🏥', frameworks: ['HIPAA', 'HITECH', 'NIST', 'ISO27001'] },
+            retail: { name: 'Retail', icon: '🛒', frameworks: ['PCI-DSS', 'GDPR', 'ISO27001', 'CIS'] },
+            manufacturing: { name: 'Manufactura', icon: '🏭', frameworks: ['IEC62443', 'NIST', 'ISO27001', 'CIS'] },
+            education: { name: 'Educación', icon: '🎓', frameworks: ['FERPA', 'NIST', 'ISO27001', 'CIS'] }
+          };
+
+          const maturityPhases = {
+            phase1: {
+              name: "Básico - Protección Fundamental", level: "1.0 - 2.5", color: "#dc2626", bgColor: "#fee2e2",
+              description: "Controles básicos de seguridad", compliance: 25
+            },
+            phase2: {
+              name: "Intermedio - Detección y Respuesta", level: "2.5 - 3.5", color: "#f97316", bgColor: "#fed7aa",
+              description: "Capacidades de detección y análisis", compliance: 60
+            },
+            phase3: {
+              name: "Avanzado - Orquestación Inteligente", level: "3.5 - 4.5", color: "#0891b2", bgColor: "#cffafe",
+              description: "Respuesta automatizada y XDR", compliance: 85
+            },
+            phase4: {
+              name: "Excelencia - Zero Trust & AI", level: "4.5 - 5.0", color: "#059669", bgColor: "#dcfce7",
+              description: "Arquitectura Zero Trust completa", compliance: 100
+            }
+          };
+
+          const technologies = {
+            'FortiGate 30G': { 
+              icon: '🔥', score: 0.8, desc: 'Next-Generation Firewall de entrada', phase: 'phase1', category: 'Network Security',
+              dependencies: [], enables: ['FortiAnalyzer', 'FortiManager']
+            },
+            'FortiGate 700G': { 
+              icon: '⚡', score: 1.8, desc: 'Hybrid Mesh Firewall avanzado', phase: 'phase3', category: 'Network Security',
+              dependencies: [], enables: ['FortiAnalyzer', 'FortiXDR']
+            },
+            'FortiEDR': { 
+              icon: '🛡️', score: 1.3, desc: 'Endpoint Detection and Response', phase: 'phase2', category: 'Endpoint Security',
+              dependencies: ['FortiClient EMS'], enables: ['FortiXDR']
+            },
+            'FortiXDR': { 
+              icon: '🎯', score: 1.7, desc: 'Extended Detection and Response', phase: 'phase3', category: 'SOC & Analytics',
+              dependencies: ['FortiEDR'], enables: ['FortiSIEM']
+            },
+            'FortiSIEM': { 
+              icon: '🔍', score: 1.4, desc: 'Security Information and Event Management', phase: 'phase3', category: 'SOC & Analytics',
+              dependencies: ['FortiAnalyzer'], enables: ['FortiSOAR']
+            },
+            'FortiAnalyzer': { 
+              icon: '📊', score: 0.9, desc: 'Security Analytics y Reporting', phase: 'phase2', category: 'SOC & Analytics',
+              dependencies: ['FortiGate 30G'], enables: ['FortiSIEM']
+            },
+            'FortiAuthenticator': { 
+              icon: '🔐', score: 0.8, desc: 'Multi-Factor Authentication', phase: 'phase1', category: 'Access Control',
+              dependencies: [], enables: ['FortiNAC']
+            },
+            'FortiNAC': { 
+              icon: '🚪', score: 1.2, desc: 'Network Access Control', phase: 'phase2', category: 'Access Control',
+              dependencies: ['FortiAuthenticator'], enables: []
+            },
+            'FortiMail': { 
+              icon: '📧', score: 1.0, desc: 'Email Security Gateway', phase: 'phase1', category: 'Email & Web Security',
+              dependencies: [], enables: ['FortiSandbox']
+            },
+            'FortiWeb': { 
+              icon: '🌍', score: 1.1, desc: 'Web Application Firewall', phase: 'phase2', category: 'Email & Web Security',
+              dependencies: [], enables: ['FortiSandbox']
+            },
+            'FortiSandbox': { 
+              icon: '🧪', score: 1.0, desc: 'Advanced Threat Protection', phase: 'phase2', category: 'Email & Web Security',
+              dependencies: ['FortiMail'], enables: ['FortiXDR']
+            },
+            'FortiClient EMS': { 
+              icon: '💻', score: 0.7, desc: 'Endpoint Management Suite', phase: 'phase1', category: 'Endpoint Security',
+              dependencies: [], enables: ['FortiEDR']
+            },
+            'FortiSwitch': { 
+              icon: '🔌', score: 0.6, desc: 'Switching Ethernet seguro', phase: 'phase2', category: 'Secure Networking',
+              dependencies: ['FortiGate 30G'], enables: ['FortiNAC']
+            },
+            'FortiAP': { 
+              icon: '📶', score: 0.5, desc: 'Wireless Access Points', phase: 'phase2', category: 'Secure Networking',
+              dependencies: ['FortiGate 30G'], enables: ['FortiNAC']
+            },
+            'FortiSASE': { 
+              icon: '🌐', score: 1.8, desc: 'Secure Access Service Edge', phase: 'phase4', category: 'SASE & SD-WAN',
+              dependencies: ['FortiGate 700G'], enables: []
+            },
+            'FortiManager': { 
+              icon: '⚙️', score: 0.8, desc: 'Centralized Security Management', phase: 'phase2', category: 'Management',
+              dependencies: ['FortiGate 30G'], enables: []
+            },
+            'FortiSOAR': { 
+              icon: '🤖', score: 1.3, desc: 'Security Orchestration and Response', phase: 'phase3', category: 'SOC & Analytics',
+              dependencies: ['FortiSIEM'], enables: []
+            },
+            'FortiCWP': { 
+              icon: '☁️', score: 1.1, desc: 'Cloud Workload Protection', phase: 'phase3', category: 'Cloud Security',
+              dependencies: [], enables: ['FortiXDR']
+            }
+          };
+
+          const calculateMaturityLevel = () => {
+            const implemented = Object.entries(data.techs).filter(([_, selected]) => selected).map(([name, _]) => technologies[name]);
+            const totalScore = implemented.reduce((sum, tech) => sum + tech.score, 0);
+            const maxPossibleScore = Object.values(technologies).reduce((sum, tech) => sum + tech.score, 0);
+            return Math.min(5, Math.max(1, (totalScore / maxPossibleScore) * 5));
+          };
+
+          const getCurrentPhase = () => {
+            const level = calculateMaturityLevel();
+            if (level <= 2.5) return 'phase1';
+            if (level <= 3.5) return 'phase2'; 
+            if (level <= 4.5) return 'phase3';
+            return 'phase4';
+          };
+
+          const generateResults = () => {
+            const implemented = Object.entries(data.techs)
+              .filter(([_, selected]) => selected)
+              .map(([name, _]) => ({ name, ...technologies[name] }));
+            
+            const missing = Object.entries(technologies)
+              .filter(([name, _]) => !data.techs[name])
+              .map(([name, tech]) => ({ name, ...tech }))
+              .sort((a, b) => b.score - a.score);
+
+            const overallMaturity = calculateMaturityLevel();
+            const currentPhase = getCurrentPhase();
+
+            setResults({
+              implemented,
+              missing,
+              overallMaturity: Math.round(overallMaturity * 10) / 10,
+              currentPhase,
+              riskReduction: Math.min(overallMaturity * 17, 85)
+            });
+            setStep(4);
+          };
+
+          // Función simplificada de dibujo para el canvas
+          const drawSimpleRoadmap = () => {
+            const canvas = roadmapCanvasRef.current;
+            if (!canvas || !results) return;
+
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Limpiar canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            // Título
+            ctx.fillStyle = '#E31E24';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🛡️ FORTINET SECURITY ROADMAP', width / 2, 40);
+
+            // Nivel de madurez
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 18px Arial';
+            ctx.fillText(`Nivel de Madurez: ${results.overallMaturity}/5.0`, width / 2, 80);
+
+            // Línea base
+            ctx.strokeStyle = '#E31E24';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(50, height / 2);
+            ctx.lineTo(width - 50, height / 2);
+            ctx.stroke();
+
+            // Marcador actual
+            const currentX = 50 + ((width - 100) * (results.overallMaturity / 5));
+            ctx.fillStyle = '#E31E24';
+            ctx.beginPath();
+            ctx.arc(currentX, height / 2, 8, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Etiquetas
+            ctx.fillStyle = '#666666';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Básico', 50, height / 2 + 30);
+            ctx.textAlign = 'right';
+            ctx.fillText('Excelencia', width - 50, height / 2 + 30);
+            ctx.textAlign = 'center';
+            ctx.fillText('Tu Posición', currentX, height / 2 - 20);
+          };
+
+          useEffect(() => {
+            if (step === 4 && results) {
+              setTimeout(drawSimpleRoadmap, 200);
+            }
+          }, [step, results]);
+
+          return (
+            <div style={{ 
+              minHeight: '100vh', 
+              background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%)', 
+              padding: '20px',
+              fontFamily: "'Segoe UI', 'Roboto', sans-serif"
+            }}>
+              <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                
+                {/* Header */}
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                    <div style={{ 
+                      background: 'linear-gradient(135deg, #E31E24 0%, #B71C1C 100%)',
+                      borderRadius: '15px',
+                      padding: '12px 20px',
+                      marginRight: '20px',
+                      boxShadow: '0 8px 25px rgba(227, 30, 36, 0.3)'
+                    }}>
+                      <span style={{ fontSize: '32px', color: 'white', fontWeight: 'bold' }}>🛡️</span>
+                    </div>
+                    <div>
+                      <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#1f2937', margin: 0, lineHeight: '1.2' }}>
+                        Fortinet Security Fabric
+                      </h1>
+                      <div style={{ fontSize: '18px', color: '#E31E24', fontWeight: '600', marginTop: '5px' }}>
+                        Cybersecurity Maturity Assessment
+                      </div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '16px', color: '#6b7280', maxWidth: '600px', margin: '0 auto' }}>
+                    Evaluate su postura de seguridad actual y descubra el roadmap personalizado para alcanzar la excelencia en ciberseguridad
+                  </p>
+                  
+                  <div style={{ margin: '30px 0' }}>
+                    <button
+                      onClick={() => {
+                        setData({
+                          industry: 'financial',
+                          frameworks: ['SOX', 'PCI-DSS', 'NIST', 'ISO27001'],
+                          techs: {
+                            'FortiGate 30G': true,
+                            'FortiAuthenticator': true,
+                            'FortiMail': true,
+                            'FortiClient EMS': true,
+                            'FortiAnalyzer': true
+                          },
+                          categoryFilter: 'Todas'
+                        });
+                        generateResults();
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #E31E24 0%, #B71C1C 100%)',
+                        color: 'white',
+                        padding: '15px 35px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        marginRight: '15px',
+                        boxShadow: '0 8px 25px rgba(227, 30, 36, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      🚀 Ver Demo Interactivo
+                    </button>
+                    
+                    <button
+                      onClick={() => setStep(1)}
+                      style={{
+                        background: 'linear-gradient(135deg, #333333 0%, #1a1a1a 100%)',
+                        color: 'white',
+                        padding: '15px 35px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 25px rgba(51, 51, 51, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      📊 Iniciar Assessment
+                    </button>
+                  </div>
+                  
+                  {/* Trust indicators */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap', marginTop: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', fontSize: '14px' }}>
+                      <span style={{ color: '#E31E24', marginRight: '8px' }}>🏆</span>
+                      #1 en Firewalls Globalmente
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', fontSize: '14px' }}>
+                      <span style={{ color: '#E31E24', marginRight: '8px' }}>🛡️</span>
+                      500,000+ Organizaciones
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', fontSize: '14px' }}>
+                      <span style={{ color: '#E31E24', marginRight: '8px' }}>⚡</span>
+                      Assessment en 5 Minutos
+                    </div>
+                  </div>
+                </div>
+
+                {/* Resultados simplificados */}
+                {step === 4 && results && (
+                  <div style={{ background: 'white', borderRadius: '20px', padding: '40px', marginBottom: '30px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+                    <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '30px', textAlign: 'center' }}>
+                      🎯 Tu Nivel de Madurez
+                    </h2>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+                      <div style={{ textAlign: 'center', padding: '30px', background: '#dbeafe', borderRadius: '15px' }}>
+                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '10px' }}>
+                          {results.overallMaturity}
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#6b7280' }}>Nivel Actual</div>
+                      </div>
+                      
+                      <div style={{ textAlign: 'center', padding: '30px', background: '#dcfce7', borderRadius: '15px' }}>
+                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#10b981', marginBottom: '10px' }}>
+                          {results.implemented.length}
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#6b7280' }}>Implementadas</div>
+                      </div>
+                      
+                      <div style={{ textAlign: 'center', padding: '30px', background: '#fef3c7', borderRadius: '15px' }}>
+                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#f59e0b', marginBottom: '10px' }}>
+                          {data.frameworks.length}
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#6b7280' }}>Frameworks</div>
+                      </div>
+                    </div>
+
+                    {/* Canvas simplificado */}
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'center', 
+                      marginBottom: '20px',
+                      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                      borderRadius: '15px',
+                      padding: '20px'
+                    }}>
+                      <canvas
+                        ref={roadmapCanvasRef}
+                        width={800}
+                        height={200}
+                        style={{
+                          maxWidth: '100%',
+                          height: 'auto',
+                          borderRadius: '10px',
+                          border: '2px solid #e2e8f0'
+                        }}
+                      />
+                    </div>
+
+                    {/* Próximos pasos */}
+                    <div style={{ background: 'white', borderRadius: '20px', padding: '30px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+                      <h3 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', color: '#E31E24' }}>
+                        🎯 Próximos Pasos Recomendados
+                      </h3>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        {results.missing.slice(0, 5).map((tech, idx) => (
+                          <div 
+                            key={idx}
+                            style={{
+                              border: '2px solid #E31E24',
+                              borderRadius: '12px',
+                              padding: '15px',
+                              background: '#fef2f2'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                              <span style={{ fontSize: '20px', marginRight: '10px' }}>{tech.icon}</span>
+                              <span style={{ fontWeight: 'bold' }}>{tech.name}</span>
+                              <span style={{ 
+                                marginLeft: 'auto',
+                                fontSize: '12px', 
+                                background: '#E31E24', 
+                                color: 'white', 
+                                padding: '4px 8px', 
+                                borderRadius: '20px' 
+                              }}>
+                                #{idx + 1}
+                              </span>
+                            </div>
+                            <p style={{ fontSize: '14px', color: '#6b7280' }}>{tech.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Botones de acción */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap', marginTop: '30px' }}>
+                      <button
+                        onClick={() => {
+                          setStep(1);
+                          setData({ industry: '', frameworks: [], techs: {}, categoryFilter: 'Todas' });
+                          setResults(null);
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                          color: 'white',
+                          padding: '15px 25px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 15px rgba(107, 114, 128, 0.3)'
+                        }}
+                      >
+                        🔄 Nuevo Assessment
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          const url = window.location.href;
+                          navigator.clipboard.writeText(url).then(() => {
+                            alert('🔗 ¡URL copiada al portapapeles! Compártela con clientes y equipo.');
+                          }).catch(() => {
+                            alert('🔗 URL para compartir: ' + url);
+                          });
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #E31E24 0%, #B71C1C 100%)',
+                          color: 'white',
+                          padding: '15px 25px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 15px rgba(227, 30, 36, 0.3)'
+                        }}
+                      >
+                        🔗 Compartir Resultado
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer */}
+                <div style={{ textAlign: 'center', marginTop: '40px', padding: '20px', color: '#6b7280' }}>
+                  <p>© 2025 Fortinet Security Fabric - Cybersecurity Assessment Tool</p>
+                  <p style={{ fontSize: '14px' }}>Para más información contacte a su representante Fortinet</p>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<FortinetSecurityAssessment />, document.getElementById('root'));
+    </script>
+</body>
+</html>
